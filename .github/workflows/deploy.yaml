@@ -27,7 +27,7 @@ jobs:
 
       - name: Inject environment variables
         run: |
-          cat <<EOF > frontend/.env
+          cat <<EOF > .env
           VITE_API_URL=https://playground.hienvuong.com
           EOF
 
