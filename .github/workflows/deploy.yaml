@@ -1,0 +1,54 @@
+name: Deploy application
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_NAME: waeconnect
+
+jobs:
+  deploy:
+    name: Build and deploy frontend
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Azure login
+        uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Inject environment variables
+        run: |
+          cat <<EOF > frontend/WaeConnect/.env
+          VITE_API_URL=https://playground.hienvuong.com
+          EOF
+
+      - name: Fetch Static Web App deployment token
+        id: swa-token
+        run: |
+          TOKEN=$(az staticwebapp secrets list \
+            --name "stapp-${{ env.PROJECT_NAME }}" \
+            --query "properties.apiKey" -o tsv)
+          if [ -z "$TOKEN" ]; then
+            echo "::error::Could not fetch deployment token"
+            exit 1
+          fi
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Static Web Apps
+        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
+        with:
+          azure_static_web_apps_api_token: ${{ steps.swa-token.outputs.token }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "frontend"
+          output_location: "dist"
