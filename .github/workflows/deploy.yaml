@@ -28,7 +28,7 @@ jobs:
       - name: Inject environment variables
         run: |
           cat <<EOF > .env
-          VITE_API_URL=https://playground.hienvuong.com
+          VITE_API_URL=https://api.playground.hienvuong.com
           EOF
 
       - name: Fetch Static Web App deployment token
