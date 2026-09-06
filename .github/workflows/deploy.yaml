@@ -9,7 +9,7 @@ permissions:
   id-token: write
 
 env:
-  PROJECT_NAME: waeconnect
+  PROJECT_NAME: playground
 
 jobs:
   deploy:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Inject environment variables
         run: |
-          cat <<EOF > frontend/WaeConnect/.env
+          cat <<EOF > frontend/.env
           VITE_API_URL=https://playground.hienvuong.com
           EOF
 
