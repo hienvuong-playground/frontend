@@ -1,0 +1,79 @@
+.home {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.home-hero {
+  height: 300px;
+  padding: 40px 60px;
+  /* Fades into the page background so the grid below appears to float over it. */
+  background: linear-gradient(to bottom, #4a90c2, #a8d4ef 60%, #eaeded);
+  color: #fff;
+}
+
+.home-hero h2 {
+  margin: 0;
+  font-size: 40px;
+}
+
+.home-hero p {
+  margin: 8px 0 0;
+  font-size: 20px;
+}
+
+.home-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: -120px;
+  padding: 0 20px 20px;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  background: #fff;
+  color: #0f1111;
+  text-decoration: none;
+}
+
+.product-card:hover .product-title {
+  color: #c7511f;
+}
+
+.product-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  margin-bottom: 8px;
+  background: #f7f7f7;
+  font-size: 80px;
+}
+
+.product-title {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.stars {
+  color: #de7921;
+}
+
+.product-reviews {
+  color: #007185;
+}
+
+.product-price {
+  font-size: 22px;
+}

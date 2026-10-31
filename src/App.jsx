@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router';
+import Header from './Header.jsx';
+import HomePage from './HomePage.jsx';
+import ProductPage from './ProductPage.jsx';
 
 function App() {
   const [message, setMessage] = useState('Loading...');
@@ -10,7 +14,18 @@ function App() {
       .catch(() => setMessage('Error: could not reach backend'));
   }, []);
 
-  return <h1>{message}</h1>;
+  return (
+    <>
+      <Header />
+      <main>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/product/:id" element={<ProductPage />} />
+        </Routes>
+      </main>
+      <p className="backend-status">Backend: {message}</p>
+    </>
+  );
 }
 
 export default App;
