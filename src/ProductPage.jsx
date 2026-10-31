@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useCart } from "./CartContext.jsx";
 import { useShop } from "./ShopContext.jsx";
-import products from "./products.js";
+import { useCatalog } from "./CatalogContext.jsx";
+import { useApi, ApiState } from "./useApi.jsx";
 import Stars from "./Stars.jsx";
 import ProductCard from "./ProductCard.jsx";
 import { Icon, Modal, Price } from "./Ui.jsx";
@@ -10,17 +11,19 @@ import "./ProductPage.css";
 
 export default function ProductPage() {
   const { id } = useParams();
-  const product = products.find((item) => item.id === Number(id));
-  if (!product)
+  const request = useApi(`/products/${encodeURIComponent(id)}`);
+  if (request.error?.status === 404)
     return (
       <div className="not-found">
         <h1>Product not found</h1>
         <Link to="/s">Browse all products</Link>
       </div>
     );
-  return <ProductDetail key={id} product={product} />;
+  if (!request.data) return <ApiState {...request} />;
+  return <ProductDetail key={id} product={request.data.product} />;
 }
 function ProductDetail({ product }) {
+  const { products } = useCatalog();
   const { addItem } = useCart();
   const { country } = useShop();
   const navigate = useNavigate();
@@ -125,7 +128,9 @@ function ProductDetail({ product }) {
           <p className="buy-box-location">
             <Icon name="pin" size={15} /> Deliver to {country}
           </p>
-          <div className="stock buy-box-stock">In Stock</div>
+          <div className="stock buy-box-stock">
+            {product.stock ? "In Stock" : "Currently unavailable"}
+          </div>
           <label className="buy-box-quantity">
             Quantity:{" "}
             <select
@@ -142,6 +147,7 @@ function ProductDetail({ product }) {
           </label>
           <button
             className="primary-button full-width"
+            disabled={!product.stock}
             onClick={() => {
               addItem(product.id, qty);
               setAdded(true);
@@ -151,6 +157,7 @@ function ProductDetail({ product }) {
           </button>
           <button
             className="orange-button full-width"
+            disabled={!product.stock}
             onClick={() => {
               addItem(product.id, qty);
               navigate("/checkout");

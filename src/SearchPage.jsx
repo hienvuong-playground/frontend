@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { departments, searchProducts } from "./products.js";
+import { useCatalog } from "./CatalogContext.jsx";
+import { useApi, ApiState } from "./useApi.jsx";
 import { useCart } from "./CartContext.jsx";
 import Stars from "./Stars.jsx";
 import { Price } from "./Ui.jsx";
 import "./SearchPage.css";
 
 export default function SearchPage() {
+  const { departments } = useCatalog();
   const [params, setParams] = useSearchParams();
   const { addItem } = useCart();
   const [added, setAdded] = useState([]);
@@ -17,17 +19,26 @@ export default function SearchPage() {
   const maxPrice = Number(params.get("price")) || Infinity;
   const sort = params.get("sort") || "featured";
   const deals = params.get("deals") === "1";
-  let results = searchProducts(query, department).filter(
-    (product) =>
-      product.rating >= rating &&
-      product.price <= maxPrice &&
-      (!deals || product.originalPrice > product.price),
-  );
-  if (sort === "price-asc") results.sort((a, b) => a.price - b.price);
-  if (sort === "price-desc") results.sort((a, b) => b.price - a.price);
-  if (sort === "rating") results.sort((a, b) => b.rating - a.rating);
+  const searchQuery = new URLSearchParams();
+  for (const key of [
+    "k",
+    "department",
+    "rating",
+    "price",
+    "sort",
+    "deals",
+    "offset",
+  ]) {
+    if (params.has(key)) searchQuery.set(key, params.get(key));
+  }
+  const request = useApi(`/products?${searchQuery}`);
+  const results = request.data?.products || [];
+  const total = request.data?.total || 0;
+  const offset = request.data?.offset || 0;
+  const limit = request.data?.limit || 24;
   const update = (key, value) => {
     const next = new URLSearchParams(params);
+    if (key !== "offset") next.delete("offset");
     value ? next.set(key, value) : next.delete(key);
     setParams(next);
   };
@@ -35,7 +46,11 @@ export default function SearchPage() {
     <div className="search-page">
       <div className="search-summary">
         <span>
-          {results.length ? `1–${results.length} of ${results.length}` : "0"}{" "}
+          {request.loading
+            ? "Loading"
+            : results.length
+              ? `${offset + 1}–${offset + results.length} of ${total}`
+              : "0"}{" "}
           results
           {query && (
             <>
@@ -134,7 +149,8 @@ export default function SearchPage() {
           <p className="muted">
             Check each product page for other buying options.
           </p>
-          {results.length === 0 && (
+          <ApiState {...request} />
+          {request.data && results.length === 0 && (
             <div className="no-results">
               <h2>No results found</h2>
               <p>Try another keyword or remove a filter.</p>
@@ -184,6 +200,7 @@ export default function SearchPage() {
                 <div className="result-actions">
                   <button
                     className="primary-button"
+                    disabled={!product.stock}
                     onClick={() => {
                       addItem(product.id);
                       setAdded((previous) => [
@@ -202,6 +219,30 @@ export default function SearchPage() {
               </div>
             </article>
           ))}
+          {request.data && total > limit && (
+            <nav className="search-pagination" aria-label="Search pages">
+              <button
+                className="secondary-button"
+                disabled={offset === 0}
+                onClick={() =>
+                  update("offset", String(Math.max(0, offset - limit)))
+                }
+              >
+                Previous
+              </button>
+              <span>
+                Page {Math.floor(offset / limit) + 1} of{" "}
+                {Math.ceil(total / limit)}
+              </span>
+              <button
+                className="secondary-button"
+                disabled={offset + limit >= total}
+                onClick={() => update("offset", String(offset + limit))}
+              >
+                Next
+              </button>
+            </nav>
+          )}
         </section>
       </div>
     </div>

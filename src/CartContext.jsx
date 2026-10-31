@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import products from "./products.js";
+import { useCatalog } from "./CatalogContext.jsx";
 import { readStorage, writeStorage } from "./storage.js";
 
 const CartContext = createContext(null);
-const validIds = new Set(products.map((product) => product.id));
 const clamp = (qty) => Math.min(99, Math.max(1, Math.floor(Number(qty) || 1)));
 export function CartProvider({ children }) {
+  const { products } = useCatalog();
+  const validIds = new Set(products.map((product) => product.id));
   const [items, setItems] = useState(() => {
     const stored = readStorage("cart", []);
     return Array.isArray(stored)

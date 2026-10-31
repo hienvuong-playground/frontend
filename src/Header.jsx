@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useCart } from "./CartContext.jsx";
 import { useShop } from "./ShopContext.jsx";
-import { departments, searchProducts } from "./products.js";
+import { useCatalog } from "./CatalogContext.jsx";
+import { useApi } from "./useApi.jsx";
 import { Brand, Icon, Modal } from "./Ui.jsx";
 import "./Header.css";
 
 export default function Header() {
+  const { departments } = useCatalog();
   const { count } = useCart();
   const { name, setName, country, setCountry } = useShop();
   const location = useLocation();
@@ -28,10 +30,18 @@ export default function Header() {
     setShowSuggestions(false);
     navigate(`/s?${params}`);
   };
-  const suggestions =
-    query.trim().length > 1
-      ? searchProducts(query, department).slice(0, 5)
-      : [];
+  const suggestionsQuery = new URLSearchParams({
+    k: query.trim(),
+    department,
+    limit: "5",
+  });
+  const suggestionsRequest = useApi(
+    showSuggestions && query.trim().length > 1
+      ? `/products?${suggestionsQuery}`
+      : null,
+    250,
+  );
+  const suggestions = suggestionsRequest.data?.products || [];
   return (
     <header className="header">
       <div className="header-top">

@@ -1,10 +1,11 @@
 import { Link } from "react-router";
 import { useCart } from "./CartContext.jsx";
-import products from "./products.js";
+import { useCatalog } from "./CatalogContext.jsx";
 import { Icon } from "./Ui.jsx";
 import "./CartPage.css";
 
 export default function CartPage() {
+  const { products } = useCatalog();
   const {
     items,
     saved,

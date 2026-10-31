@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link } from "react-router";
-import products from "./products.js";
+import { useCatalog } from "./CatalogContext.jsx";
 import storefront from "./storefront.json";
 import ProductCard from "./ProductCard.jsx";
 import { Icon } from "./Ui.jsx";
@@ -45,6 +45,7 @@ function ProductShelf({ title, items, deal = false }) {
   );
 }
 export default function HomePage() {
+  const { products } = useCatalog();
   const carousel = useRef(null);
   return (
     <div className="home">
@@ -117,18 +118,15 @@ export default function HomePage() {
       </div>
       <ProductShelf
         title="Best Sellers in Electronics"
-        items={products.slice(0, 12)}
+        items={products
+          .filter((product) => product.category === "Electronics")
+          .slice(0, 12)}
       />
       <ProductShelf
         title="Deals you might like"
-        items={[
-          products[1],
-          products[5],
-          products[7],
-          products[12],
-          products[21],
-          products[31],
-        ]}
+        items={products
+          .filter((product) => product.originalPrice > product.price)
+          .slice(0, 6)}
         deal
       />
       <section className="home-signin">

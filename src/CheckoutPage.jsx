@@ -1,11 +1,12 @@
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useCart } from "./CartContext.jsx";
 import { useShop } from "./ShopContext.jsx";
-import products from "./products.js";
+import { useCatalog } from "./CatalogContext.jsx";
 import { Icon } from "./Ui.jsx";
 import "./CheckoutPage.css";
 
 export default function CheckoutPage() {
+  const { products } = useCatalog();
   const { items, count, subtotal, clearCart } = useCart();
   const { name, country, addOrder } = useShop();
   const navigate = useNavigate();
@@ -149,6 +150,7 @@ export default function CheckoutPage() {
   );
 }
 export function OrdersPage() {
+  const { products } = useCatalog();
   const { orders } = useShop();
   const [params] = useSearchParams();
   return (
