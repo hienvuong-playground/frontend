@@ -1,9 +1,12 @@
 import { Link } from 'react-router';
+import { useCart } from './CartContext.jsx';
 import './Header.css';
 
 const NAV_LINKS = ["Today's Deals", 'Customer Service', 'Registry', 'Gift Cards', 'Sell'];
 
 function Header() {
+  const { count } = useCart();
+
   return (
     <header className="header">
       <div className="header-top">
@@ -39,15 +42,15 @@ function Header() {
           <span className="header-line2">&amp; Orders</span>
         </a>
 
-        <a href="#" className="header-item header-cart">
-          <span className="header-cart-count">0</span>
+        <Link to="/cart" className="header-item header-cart">
+          <span className="header-cart-count">{count}</span>
           <svg width="32" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="9" cy="20" r="1.5" />
             <circle cx="18" cy="20" r="1.5" />
             <path d="M2 3h3l2.5 12h12l2-8H6.2" />
           </svg>
           <span className="header-line2">Cart</span>
-        </a>
+        </Link>
       </div>
 
       <nav className="header-nav">

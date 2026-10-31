@@ -97,3 +97,20 @@
   padding: 40px;
   text-align: center;
 }
+
+.buy-box-added {
+  color: #007600;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .product-page {
+    grid-template-columns: 1fr;
+  }
+
+  .product-page-image {
+    padding-top: 0;
+    font-size: 140px;
+  }
+}

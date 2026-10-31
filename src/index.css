@@ -8,10 +8,9 @@ body {
   background: #eaeded;
 }
 
-.backend-status {
-  margin: 0;
-  padding: 12px;
+.not-found {
+  margin: 20px;
+  padding: 40px;
+  background: #fff;
   text-align: center;
-  font-size: 12px;
-  color: #555;
 }

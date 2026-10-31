@@ -1,29 +1,26 @@
-import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router';
 import Header from './Header.jsx';
 import HomePage from './HomePage.jsx';
 import ProductPage from './ProductPage.jsx';
+import CartPage from './CartPage.jsx';
+import Footer from './Footer.jsx';
+import NotFoundPage from './NotFoundPage.jsx';
+import ScrollToTop from './ScrollToTop.jsx';
 
 function App() {
-  const [message, setMessage] = useState('Loading...');
-
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/hello`)
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch(() => setMessage('Error: could not reach backend'));
-  }, []);
-
   return (
     <>
+      <ScrollToTop />
       <Header />
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
-      <p className="backend-status">Backend: {message}</p>
+      <Footer />
     </>
   );
 }

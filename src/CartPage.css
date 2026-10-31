@@ -1,0 +1,138 @@
+.cart {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  align-items: start;
+  gap: 20px;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #0f1111;
+}
+
+.cart-lines,
+.cart-checkout {
+  padding: 20px;
+  background: #fff;
+}
+
+.cart-lines h1 {
+  margin: 0 0 12px;
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.cart-line {
+  display: flex;
+  gap: 20px;
+  padding: 16px 0;
+  border-top: 1px solid #ddd;
+}
+
+.cart-line-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 140px;
+  background: #f7f7f7;
+  font-size: 70px;
+  text-decoration: none;
+}
+
+.cart-line-info {
+  flex: 1;
+}
+
+.cart-line-title {
+  font-size: 18px;
+  color: #0f1111;
+  text-decoration: none;
+}
+
+.cart-line-title:hover {
+  color: #c7511f;
+}
+
+.cart-line-stock {
+  margin: 4px 0 12px;
+  font-size: 12px;
+  color: #007600;
+}
+
+.cart-line-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cart-line-actions select {
+  padding: 4px;
+  border: 1px solid #d5d9d9;
+  border-radius: 8px;
+  background: #f0f2f2;
+}
+
+.cart-line-delete {
+  border: none;
+  background: none;
+  color: #007185;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.cart-line-delete:hover {
+  color: #c7511f;
+  text-decoration: underline;
+}
+
+.cart-line-price {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cart-subtotal-line {
+  font-size: 18px;
+}
+
+.cart-lines > .cart-subtotal-line {
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+  text-align: right;
+}
+
+.cart-checkout .cart-subtotal-line {
+  margin-bottom: 12px;
+}
+
+.cart-checkout-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  background: #ffd814;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cart-checkout-button:hover {
+  background: #f7ca00;
+}
+
+.cart-empty {
+  display: block;
+  margin-top: 20px;
+  padding: 40px;
+  background: #fff;
+}
+
+@media (max-width: 800px) {
+  .cart {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-line-image {
+    width: 100px;
+    height: 100px;
+    font-size: 50px;
+  }
+}
