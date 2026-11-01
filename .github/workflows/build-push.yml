@@ -1,0 +1,121 @@
+name: Build and Push Image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  ACR_NAME: acrhienplayground
+
+concurrency:
+  group: build-push
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      src: ${{ steps.filter.outputs.src }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Filter paths
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          filters: |
+            src:
+              - 'src/**'
+              - 'public/**'
+              - 'index.html'
+              - 'vite.config.js'
+              - 'nginx.conf'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'Containerfile'
+              - '.github/workflows/build-push.yml'
+
+  build-push:
+    needs: changes
+    if: ${{ needs.changes.outputs.src == 'true' }}
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: sha-${{ steps.vars.outputs.sha }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set short SHA
+        id: vars
+        run: echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Azure Login
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Azure Container Registry Login
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Set image name
+        run: echo "IMAGE=${{ env.ACR_NAME }}.azurecr.io/frontend" >> "$GITHUB_ENV"
+
+      - name: Build image
+        run: |
+          podman build \
+            -f Containerfile \
+            --platform linux/amd64 \
+            --layers \
+            --build-arg VITE_API_URL=https://api.playground.hienvuong.com \
+            --cache-from "${IMAGE}/cache" \
+            --cache-to "${IMAGE}/cache" \
+            -t "${IMAGE}:latest" \
+            -t "${IMAGE}:sha-${{ steps.vars.outputs.sha }}" \
+            .
+
+      - name: Push image
+        run: |
+          podman push "${IMAGE}:latest"
+          podman push "${IMAGE}:sha-${{ steps.vars.outputs.sha }}"
+
+  update-manifest:
+    needs: build-push
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Set image tag
+        working-directory: deploy
+        run: kustomize edit set image "${{ env.ACR_NAME }}.azurecr.io/frontend:${{ needs.build-push.outputs.tag }}"
+
+      - name: Open and merge PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build-push.outputs.tag }}
+        run: |
+          git diff --quiet && exit 0
+          branch="deploy/frontend-$TAG"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -am "Deploy frontend $TAG"
+          git push --force origin "$branch"
+          gh pr view "$branch" >/dev/null 2>&1 || \
+            gh pr create --base main --head "$branch" --title "Deploy frontend $TAG" --body "Image built from ${GITHUB_SHA}."
+          gh pr merge "$branch" --squash --delete-branch
