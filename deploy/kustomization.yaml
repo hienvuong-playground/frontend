@@ -5,3 +5,6 @@ resources:
 - deployment.yaml
 - httproute.yaml
 - apex-redirect.yaml
+images:
+- name: acrhienplayground.azurecr.io/frontend
+  newTag: sha-c114f79
