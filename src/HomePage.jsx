@@ -1,9 +1,9 @@
 import { useRef } from "react";
 import { Link } from "react-router";
 import { useCatalog } from "./CatalogContext.jsx";
-import storefront from "./storefront.json";
 import ProductCard from "./ProductCard.jsx";
 import { Icon } from "./Ui.jsx";
+import { useApi, ApiState } from "./useApi.jsx";
 import "./HomePage.css";
 
 function ProductShelf({ title, items, deal = false }) {
@@ -47,75 +47,84 @@ function ProductShelf({ title, items, deal = false }) {
 export default function HomePage() {
   const { products } = useCatalog();
   const carousel = useRef(null);
+  const { data: storefront, ...request } = useApi("/storefront");
   return (
     <div className="home">
-      <section className="promo-carousel" aria-label="Featured departments">
-        <div className="promo-track" ref={carousel}>
-          {storefront.promos.map((promo) => (
-            <Link
-              key={promo.title}
-              className="promo-card"
-              to={`/s?department=${encodeURIComponent(promo.department)}`}
-            >
-              <img
-                src={promo.image}
-                alt=""
-                fetchpriority={promo === storefront.promos[0] ? "high" : "auto"}
-              />
-              <h2>{promo.title}</h2>
-            </Link>
-          ))}
-        </div>
-        <button
-          className="carousel-arrow carousel-prev"
-          aria-label="Previous featured departments"
-          onClick={() =>
-            carousel.current.scrollBy({ left: -600, behavior: "smooth" })
-          }
-        >
-          ‹
-        </button>
-        <button
-          className="carousel-arrow carousel-next"
-          aria-label="Next featured departments"
-          onClick={() =>
-            carousel.current.scrollBy({ left: 600, behavior: "smooth" })
-          }
-        >
-          ›
-        </button>
-      </section>
-      <div className="category-grid">
-        {storefront.categories.map((category) => (
-          <section className="category-card" key={category.title}>
-            <h2>{category.title}</h2>
-            <div className="category-items">
-              {category.items.map((item) => (
+      {storefront ? (
+        <>
+          <section className="promo-carousel" aria-label="Featured departments">
+            <div className="promo-track" ref={carousel}>
+              {storefront.promos.map((promo) => (
                 <Link
-                  to={`/s?k=${encodeURIComponent(item.query)}`}
-                  key={item.label}
+                  key={promo.id}
+                  className="promo-card"
+                  to={`/s?department=${encodeURIComponent(promo.department)}`}
                 >
-                  <div className="category-image">
-                    <img src={item.image} alt={item.label} loading="lazy" />
-                  </div>
-                  <span>
-                    {item.label.replace(/\b\w/g, (letter) =>
-                      letter.toUpperCase(),
-                    )}
-                  </span>
+                  <img
+                    src={promo.image}
+                    alt=""
+                    fetchpriority={
+                      promo === storefront.promos[0] ? "high" : "auto"
+                    }
+                  />
+                  <h2>{promo.title}</h2>
                 </Link>
               ))}
             </div>
-            <Link
-              className="category-more"
-              to={`/s?department=${encodeURIComponent(category.department)}`}
+            <button
+              className="carousel-arrow carousel-prev"
+              aria-label="Previous featured departments"
+              onClick={() =>
+                carousel.current.scrollBy({ left: -600, behavior: "smooth" })
+              }
             >
-              Shop more
-              <Icon name="chevron" size={13} />
-            </Link>
+              ‹
+            </button>
+            <button
+              className="carousel-arrow carousel-next"
+              aria-label="Next featured departments"
+              onClick={() =>
+                carousel.current.scrollBy({ left: 600, behavior: "smooth" })
+              }
+            >
+              ›
+            </button>
           </section>
-        ))}
-      </div>
+          <div className="category-grid">
+            {storefront.categories.map((category) => (
+              <section className="category-card" key={category.id}>
+                <h2>{category.title}</h2>
+                <div className="category-items">
+                  {category.items.map((item) => (
+                    <Link
+                      to={`/s?k=${encodeURIComponent(item.query)}`}
+                      key={item.label}
+                    >
+                      <div className="category-image">
+                        <img src={item.image} alt={item.label} loading="lazy" />
+                      </div>
+                      <span>
+                        {item.label.replace(/\b\w/g, (letter) =>
+                          letter.toUpperCase(),
+                        )}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+                <Link
+                  className="category-more"
+                  to={`/s?department=${encodeURIComponent(category.department)}`}
+                >
+                  Shop more
+                  <Icon name="chevron" size={13} />
+                </Link>
+              </section>
+            ))}
+          </div>
+        </>
+      ) : (
+        <ApiState {...request} />
+      )}
       <ProductShelf
         title="Best Sellers in Electronics"
         items={products

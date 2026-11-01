@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Ember Modern";
-  src: url("/assets/ember-modern-bold.woff2") format("woff2");
+  src: url("./assets/ember-modern-bold.woff2") format("woff2");
   font-weight: 700;
   font-display: swap;
 }
@@ -67,7 +67,7 @@ hr {
   display: block;
   width: 98px;
   height: 34px;
-  background: url("/assets/nav-sprite.png") -9px -125px;
+  background: url("./assets/nav-sprite.png") -9px -125px;
 }
 .price {
   display: inline-flex;
