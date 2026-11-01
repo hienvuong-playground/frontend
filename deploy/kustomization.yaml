@@ -7,4 +7,4 @@ resources:
 - apex-redirect.yaml
 images:
 - name: acrhienplayground.azurecr.io/frontend
-  newTag: sha-c114f79
+  newTag: sha-a157a96
