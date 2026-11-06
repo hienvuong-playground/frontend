@@ -75,7 +75,7 @@ jobs:
             -f Containerfile \
             --platform linux/amd64 \
             --layers \
-            --build-arg VITE_API_URL=https://api.playground.hienvuong.com \
+            --build-arg VITE_API_URL=https://api.hienvuong.com \
             --cache-from "${IMAGE}/cache" \
             --cache-to "${IMAGE}/cache" \
             -t "${IMAGE}:latest" \
